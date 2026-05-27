@@ -17,13 +17,13 @@ class DatabaseSeeder extends Seeder
     {
         // Settings
         \DB::table('settings')->insert([
-            ['key_name' => 'business_name', 'value' => 'Meenavan | மீனவன்', 'type' => 'string', 'group_name' => 'business', 'is_public' => true],
+            ['key_name' => 'business_name', 'value' => 'Commerce Admin Demo', 'type' => 'string', 'group_name' => 'business', 'is_public' => true],
             ['key_name' => 'business_phone', 'value' => '0712341017', 'type' => 'string', 'group_name' => 'business', 'is_public' => true],
-            ['key_name' => 'business_email', 'value' => 'info@meenavan.lk', 'type' => 'string', 'group_name' => 'business', 'is_public' => true],
+            ['key_name' => 'business_email', 'value' => 'info@example.com', 'type' => 'string', 'group_name' => 'business', 'is_public' => true],
             ['key_name' => 'whatsapp_number', 'value' => '94712341017', 'type' => 'string', 'group_name' => 'whatsapp', 'is_public' => true],
             ['key_name' => 'min_order_amount', 'value' => '500', 'type' => 'number', 'group_name' => 'order', 'is_public' => true],
             ['key_name' => 'free_delivery_above', 'value' => '2000', 'type' => 'number', 'group_name' => 'delivery', 'is_public' => true],
-            ['key_name' => 'currency_symbol', 'value' => 'Rs.', 'type' => 'string', 'group_name' => 'business', 'is_public' => true],
+            ['key_name' => 'currency_symbol', 'value' => '$', 'type' => 'string', 'group_name' => 'business', 'is_public' => true],
         ]);
 
         // Cutting Options
@@ -54,7 +54,7 @@ class DatabaseSeeder extends Seeder
         // Super Admin
         \DB::table('users')->insert([
             'name' => 'Admin',
-            'email' => 'admin@meenavan.lk',
+            'email' => 'admin@example.com',
             'password' => bcrypt('password'),
             'role' => 'super_admin',
             'is_active' => true,

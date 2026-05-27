@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus } from "lucide-react";
+import { Plus, Users } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { apiGetAllCustomers, apiDeleteCustomer } from "../api-service";
 import ListCustomer from "./ListCustomer";
 import CustomerFormModal from "./CustomerFormModal";
+import PageHeader from "@/components/common/PageHeader";
 
 export default function CustomersManagement() {
   const [search, setSearch] = useState("");
@@ -40,13 +41,13 @@ export default function CustomersManagement() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Customers</h1>
-          <p className="text-slate-500 mt-1 font-medium">Manage your customer database and delivery addresses.</p>
-        </div>
-        <Button onClick={handleOpenCreate} className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-sm"><Plus className="mr-2 h-4 w-4" /> Add Customer</Button>
-      </div>
+      <PageHeader
+        title="Customers"
+        subtitle="Manage your customer database and delivery addresses."
+        buttonLabel="Add Customer"
+        buttonOnClick={handleOpenCreate}
+        icon={Users}
+      />
       <ListCustomer data={data} loading={loading} pagination={pagination} onEdit={handleOpenEdit} onDelete={handleDelete} searchValue={search} onSearchChange={setSearch} onPageChange={(p) => fetchData(p)} />
       <CustomerFormModal isOpen={isSheetOpen} onClose={() => setIsSheetOpen(false)} isEditing={isEditing} item={selectedItem} onSuccess={() => fetchData(pagination?.current_page || 1)} />
     </div>

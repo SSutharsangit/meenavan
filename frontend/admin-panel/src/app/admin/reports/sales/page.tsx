@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { Loader2, TrendingUp, ShoppingBag, CheckCircle, DollarSign } from "lucide-react";
+import { formatCurrency } from "@/lib/admin-config";
 import { apiGetSalesAnalytics } from "./_utils/api-service";
+import PageHeader from "@/components/common/PageHeader";
 
 export default function SalesAnalyticsPage() {
   const [data, setData] = useState<any>(null);
@@ -24,10 +26,11 @@ export default function SalesAnalyticsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Sales Analytics</h1>
-        <p className="text-slate-500 mt-1 font-medium">Overview of revenue and order performance.</p>
-      </div>
+      <PageHeader
+        title="Sales Analytics"
+        subtitle="Overview of revenue and order performance."
+        icon={TrendingUp}
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
@@ -36,7 +39,7 @@ export default function SalesAnalyticsPage() {
           </div>
           <div>
             <div className="text-sm font-semibold text-slate-500 uppercase tracking-wide">Total Revenue</div>
-            <div className="text-2xl font-black text-slate-900">Rs. {data.overview.total_revenue.toLocaleString()}</div>
+            <div className="text-2xl font-black text-slate-900">{formatCurrency(data.overview.total_revenue, 0)}</div>
           </div>
         </div>
         
@@ -66,7 +69,7 @@ export default function SalesAnalyticsPage() {
           </div>
           <div>
             <div className="text-sm font-semibold text-slate-500 uppercase tracking-wide">Avg Order Value</div>
-            <div className="text-2xl font-black text-slate-900">Rs. {data.overview.average_order_value.toLocaleString()}</div>
+            <div className="text-2xl font-black text-slate-900">{formatCurrency(data.overview.average_order_value, 0)}</div>
           </div>
         </div>
       </div>
@@ -83,7 +86,7 @@ export default function SalesAnalyticsPage() {
                   <div className="relative w-full flex justify-center h-full items-end pb-2">
                     <div className="w-10 bg-blue-100 rounded-t-lg transition-all duration-300 group-hover:bg-blue-200 relative" style={{ height: height || '4px' }}>
                       <div className="absolute -top-10 left-1/2 -translate-x-1/2 bg-slate-900 text-white text-xs font-bold py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap pointer-events-none">
-                        Rs. {day.revenue}
+                        {formatCurrency(day.revenue, 0)}
                       </div>
                     </div>
                   </div>

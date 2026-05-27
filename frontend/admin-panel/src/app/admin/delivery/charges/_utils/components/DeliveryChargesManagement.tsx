@@ -1,11 +1,11 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { apiGetAllDeliveryCharges, apiDeleteDeliveryCharge, apiGetDeliveryAreas } from "../api-service";
 import ListDeliveryCharge from "./ListDeliveryCharge";
 import DeliveryChargeFormModal from "./DeliveryChargeFormModal";
+import PageHeader from "@/components/common/PageHeader";
+import { Truck } from "lucide-react";
 
 export default function DeliveryChargesManagement() {
   const [search, setSearch] = useState("");
@@ -50,13 +50,13 @@ export default function DeliveryChargesManagement() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Delivery Charges</h1>
-          <p className="text-slate-500 mt-1 font-medium">Configure delivery fees and rules per area.</p>
-        </div>
-        <Button onClick={handleOpenCreate} className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-sm"><Plus className="mr-2 h-4 w-4" /> Add Charge Rule</Button>
-      </div>
+      <PageHeader
+        title="Delivery Charges"
+        subtitle="Configure delivery fees and rules per area."
+        buttonLabel="Add Charge Rule"
+        buttonOnClick={handleOpenCreate}
+        icon={Truck}
+      />
       <ListDeliveryCharge data={data} loading={loading} pagination={pagination} onEdit={handleOpenEdit} onDelete={handleDelete} searchValue={search} onSearchChange={setSearch} onPageChange={(p) => fetchData(p)} />
       <DeliveryChargeFormModal isOpen={isSheetOpen} onClose={() => setIsSheetOpen(false)} isEditing={isEditing} item={selectedItem} areas={areas} onSuccess={() => fetchData(pagination?.current_page || 1)} />
     </div>

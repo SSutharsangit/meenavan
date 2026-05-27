@@ -1,31 +1,36 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import toast from "react-hot-toast";
 import { Card, CardContent } from "@/components/ui/card";
+import { formatCurrency } from "@/lib/admin-config";
 import { 
   DollarSign, 
   ShoppingCart, 
   TrendingUp, 
   AlertTriangle,
-  Loader2
+  Loader2,
+  LayoutDashboard
 } from "lucide-react";
 import { DashboardService, DashboardStats } from "./_utils/api-service";
+import PageHeader from "@/components/common/PageHeader";
 
 export default function Dashboard() {
   const [stats, setStats] = useState<DashboardStats | null>(null);
   const [loading, setLoading] = useState(true);
+  const [range, setRange] = useState<"today" | "week" | "month">("today");
 
   useEffect(() => {
-    fetchStats();
-  }, []);
+    fetchStats(range);
+  }, [range]);
 
-  const fetchStats = async () => {
+  const fetchStats = async (currentRange: string) => {
     try {
       setLoading(true);
-      const data = await DashboardService.getStats();
+      const data = await DashboardService.getStats(currentRange);
       setStats(data);
     } catch (error: any) {
-      alert(error.message || "Failed to load dashboard stats");
+      toast.error(error.message || "Failed to load dashboard stats");
     } finally {
       setLoading(false);
     }
@@ -52,17 +57,33 @@ export default function Dashboard() {
   return (
     <div className="space-y-6">
       {/* Header section */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Dashboard</h1>
-          <p className="text-slate-500 mt-1 font-medium">Welcome back! Here&apos;s your store overview for today.</p>
+      <PageHeader
+        title="Dashboard"
+        subtitle={`Welcome back. Here's your business overview for ${
+          range === "today" ? "today" : range === "week" ? "this week" : "this month"
+        }.`}
+        icon={LayoutDashboard}
+      >
+        <div className="flex bg-white dark:bg-slate-800 p-1 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm shrink-0">
+          {(["today", "week", "month"] as const).map((r) => {
+            const isActive = range === r;
+            const label = r === "today" ? "Today" : r === "week" ? "This Week" : "This Month";
+            return (
+              <button
+                key={r}
+                onClick={() => setRange(r)}
+                className={`px-4 py-1.5 rounded-lg text-sm transition-colors cursor-pointer ${
+                  isActive
+                    ? "bg-blue-50 text-blue-700 font-semibold dark:bg-slate-700 dark:text-blue-200"
+                    : "text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 font-medium"
+                }`}
+              >
+                {label}
+              </button>
+            );
+          })}
         </div>
-        <div className="flex bg-white p-1 rounded-xl border border-slate-200 shadow-sm">
-          <button className="px-4 py-1.5 rounded-lg bg-blue-50 text-blue-700 text-sm font-semibold transition-colors">Today</button>
-          <button className="px-4 py-1.5 rounded-lg text-slate-500 hover:text-slate-700 text-sm font-medium transition-colors">This Week</button>
-          <button className="px-4 py-1.5 rounded-lg text-slate-500 hover:text-slate-700 text-sm font-medium transition-colors">This Month</button>
-        </div>
-      </div>
+      </PageHeader>
 
       {/* Stat Cards */}
       <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 lg:grid-cols-4">
@@ -71,8 +92,10 @@ export default function Dashboard() {
           <CardContent className="p-6">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Today&apos;s Sales</p>
-                <h3 className="text-2xl font-extrabold text-emerald-500">Rs. {stats.today_sales.toLocaleString(undefined, { minimumFractionDigits: 2 })}</h3>
+                <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                  {range === "today" ? "Today's Sales" : range === "week" ? "Weekly Sales" : "Monthly Sales"}
+                </p>
+                <h3 className="text-2xl font-extrabold text-emerald-500">{formatCurrency(stats.today_sales)}</h3>
               </div>
               <div className="h-10 w-10 bg-emerald-50 rounded-xl flex items-center justify-center text-emerald-500">
                 <DollarSign className="h-5 w-5" />
@@ -86,7 +109,9 @@ export default function Dashboard() {
           <CardContent className="p-6">
             <div className="flex justify-between items-start">
               <div>
-                <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Transactions</p>
+                <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">
+                  {range === "today" ? "Today's Transactions" : range === "week" ? "Weekly Transactions" : "Monthly Transactions"}
+                </p>
                 <h3 className="text-2xl font-extrabold text-blue-600">{stats.today_transactions}</h3>
               </div>
               <div className="h-10 w-10 bg-blue-50 rounded-xl flex items-center justify-center text-blue-500">
@@ -94,7 +119,7 @@ export default function Dashboard() {
               </div>
             </div>
             <div className="mt-4 flex items-center text-sm font-medium text-slate-600">
-              Avg basket: Rs. {stats.today_transactions > 0 ? (stats.today_sales / stats.today_transactions).toLocaleString(undefined, { minimumFractionDigits: 2 }) : "0.00"}
+              Avg basket: {formatCurrency(stats.today_transactions > 0 ? stats.today_sales / stats.today_transactions : 0)}
             </div>
           </CardContent>
         </Card>
@@ -105,7 +130,7 @@ export default function Dashboard() {
             <div className="flex justify-between items-start">
               <div>
                 <p className="text-[11px] font-bold text-slate-400 uppercase tracking-wider mb-2">Est. Gross Profit</p>
-                <h3 className="text-2xl font-extrabold text-purple-600">Rs. {stats.gross_profit.toLocaleString(undefined, { minimumFractionDigits: 2 })}</h3>
+                <h3 className="text-2xl font-extrabold text-purple-600">{formatCurrency(stats.gross_profit)}</h3>
               </div>
               <div className="h-10 w-10 bg-purple-50 rounded-xl flex items-center justify-center text-purple-500">
                 <TrendingUp className="h-5 w-5" />
@@ -138,7 +163,9 @@ export default function Dashboard() {
       <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-7">
         <Card className="col-span-4 border-slate-200 shadow-sm rounded-2xl">
           <div className="p-6 pb-2">
-            <h3 className="text-lg font-bold text-slate-800">Weekly Sales</h3>
+            <h3 className="text-lg font-bold text-slate-800">
+              {range === "month" ? "14-Day Sales Chart" : "Weekly Sales Chart"}
+            </h3>
           </div>
           <CardContent className="p-6 pt-0">
             {/* Visual representation of the bar chart */}
@@ -165,7 +192,7 @@ export default function Dashboard() {
                     <div key={i} className="flex flex-col items-center w-full group relative">
                       {/* Tooltip */}
                       <div className="opacity-0 group-hover:opacity-100 absolute -top-8 bg-slate-800 text-white text-[10px] py-1 px-2 rounded whitespace-nowrap transition-opacity pointer-events-none z-20">
-                        Rs. {item.amount.toLocaleString()}
+                        {formatCurrency(item.amount, 0)}
                       </div>
                       <div 
                         className="w-12 rounded-t-sm bg-gradient-to-t from-blue-600 to-blue-400 group-hover:from-blue-500 group-hover:to-blue-300 transition-colors cursor-pointer" 

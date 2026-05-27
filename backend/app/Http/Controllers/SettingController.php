@@ -65,7 +65,10 @@ class SettingController extends Controller
         $settings = $request->input('settings', []);
         
         foreach ($settings as $key => $value) {
-            Setting::where('key_name', $key)->update(['value' => $value]);
+            \App\Models\Setting::updateOrCreate(
+                ['key_name' => $key],
+                ['value' => $value, 'group_name' => 'business', 'is_public' => true]
+            );
         }
         
         return $this->formatResponse(true, 'Settings updated successfully');

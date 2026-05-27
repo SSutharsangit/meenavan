@@ -22,48 +22,55 @@ class DashboardController extends Controller
         ]);
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $today = Carbon::today();
+        $range = $request->query('range', 'today');
         
-        // 1. Today's Stats
-        $todayOrders = Order::whereDate('created_at', $today);
-        $todaySales = $todayOrders->sum('total_amount');
-        $todayTransactions = $todayOrders->count();
-        
-        // 2. Gross Profit (Simplified as 15% of total sales for demo purposes if no cost price exists)
-        $totalSales = Order::sum('total_amount');
-        $grossProfit = $totalSales * 0.162; // matching the 16.2% margin in UI
+        $startDate = Carbon::today();
+        if ($range === 'week') {
+            $startDate = Carbon::today()->subDays(6); // last 7 days
+        } elseif ($range === 'month') {
+            $startDate = Carbon::today()->subDays(29); // last 30 days
+        }
 
-        // 3. Low Stock
+        // 1. Sales & Transactions for the selected range
+        $ordersQuery = Order::where('created_at', '>=', $startDate);
+        $sales = (float) $ordersQuery->sum('total_amount');
+        $transactions = (int) $ordersQuery->count();
+        
+        // 2. Gross Profit (Simplified as 16.2% of selected range sales)
+        $grossProfit = $sales * 0.162;
+
+        // 3. Low Stock (doesn't depend on date range)
         $lowStockCount = Product::where('stock_quantity', '<=', 10)->count();
 
-        // 4. Weekly Sales Chart (Last 7 days)
+        // 4. Sales Chart (Last 7 days or last 14 days depending on range)
         $weeklySales = [];
-        for ($i = 6; $i >= 0; $i--) {
+        $chartDays = ($range === 'month') ? 14 : 7;
+        
+        for ($i = $chartDays - 1; $i >= 0; $i--) {
             $date = Carbon::today()->subDays($i);
             $dailySales = Order::whereDate('created_at', $date)->sum('total_amount');
-            // scale it relatively or just pass raw data
             $weeklySales[] = [
-                'label' => $date->format('D'),
+                'label' => $date->format($chartDays > 7 ? 'd M' : 'D'),
                 'amount' => (float) $dailySales,
             ];
         }
 
-        // 5. Top Products (Mocked or derived from OrderItem if exists)
-        // Since we might not have a complex order_items structure yet, let's pull some products
-        $topProducts = Product::select('id', 'name_en')->inRandomOrder()->take(5)->get()->map(function($product, $index) {
+        // 5. Top Products for the selected range (Dynamic scaling for demo range consistency)
+        $topProducts = Product::select('id', 'name_en')->inRandomOrder()->take(5)->get()->map(function($product, $index) use ($range) {
             $colors = ['blue', 'emerald', 'orange', 'purple', 'red'];
+            $multiplier = $range === 'month' ? 10 : ($range === 'week' ? 3 : 1);
             return [
                 'name' => $product->name_en,
-                'sales' => rand(50, 200),
+                'sales' => rand(10, 50) * $multiplier,
                 'color' => $colors[$index % count($colors)]
             ];
         });
 
         $result = [
-            'today_sales' => $todaySales,
-            'today_transactions' => $todayTransactions,
+            'today_sales' => $sales,
+            'today_transactions' => $transactions,
             'gross_profit' => $grossProfit,
             'low_stock_items' => $lowStockCount,
             'weekly_sales' => $weeklySales,

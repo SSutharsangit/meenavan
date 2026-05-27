@@ -1,5 +1,6 @@
 import { Sidebar } from "@/components/layout/Sidebar";
 import { Topbar } from "@/components/layout/Topbar";
+import AdminMetadataUpdater from "@/components/common/AdminMetadataUpdater";
 
 export default function DashboardLayout({
   children,
@@ -8,6 +9,7 @@ export default function DashboardLayout({
 }) {
   return (
     <div className="flex h-screen w-full bg-slate-50 overflow-hidden text-slate-900">
+      <AdminMetadataUpdater />
       <div className="hidden md:block h-full shrink-0 shadow-lg z-20">
         <Sidebar />
       </div>

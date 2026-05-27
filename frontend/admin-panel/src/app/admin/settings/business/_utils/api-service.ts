@@ -1,3 +1,6 @@
+import { adminApiUrl, jsonHeaders } from "@/lib/admin-api";
+import { ADMIN_CURRENCY_SYMBOL } from "@/lib/admin-config";
+
 export interface Setting {
   id: number;
   key_name: string;
@@ -11,13 +14,12 @@ export interface BusinessSettings {
   business_phone: string;
   business_email: string;
   currency_symbol: string;
+  business_logo?: string;
 }
-
-const API_BASE_URL = 'http://localhost:8000/api/admin/settings';
 
 export const SettingsService = {
   getBusinessSettings: async (): Promise<BusinessSettings> => {
-    const res = await fetch(`${API_BASE_URL}?group=business`);
+    const res = await fetch(adminApiUrl("settings?group=business"));
     const data = await res.json();
     
     if (data.is_success) {
@@ -33,7 +35,8 @@ export const SettingsService = {
         business_name: settingsObj.business_name || '',
         business_phone: settingsObj.business_phone || '',
         business_email: settingsObj.business_email || '',
-        currency_symbol: settingsObj.currency_symbol || 'Rs.',
+        currency_symbol: settingsObj.currency_symbol || ADMIN_CURRENCY_SYMBOL,
+        business_logo: settingsObj.business_logo || '',
       } as BusinessSettings;
     }
     
@@ -41,11 +44,9 @@ export const SettingsService = {
   },
 
   updateBusinessSettings: async (settings: Partial<BusinessSettings>): Promise<void> => {
-    const res = await fetch(`${API_BASE_URL}/bulk-update`, {
+    const res = await fetch(adminApiUrl("settings/bulk-update"), {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: jsonHeaders,
       body: JSON.stringify({ settings }),
     });
     
@@ -56,7 +57,7 @@ export const SettingsService = {
   },
 
   getWhatsAppSettings: async (): Promise<{ whatsapp_number: string }> => {
-    const res = await fetch(`${API_BASE_URL}?group=whatsapp`);
+    const res = await fetch(adminApiUrl("settings?group=whatsapp"));
     const data = await res.json();
     
     if (data.is_success) {
@@ -74,11 +75,9 @@ export const SettingsService = {
   },
 
   updateWhatsAppSettings: async (settings: { whatsapp_number: string }): Promise<void> => {
-    const res = await fetch(`${API_BASE_URL}/bulk-update`, {
+    const res = await fetch(adminApiUrl("settings/bulk-update"), {
       method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-      },
+      headers: jsonHeaders,
       body: JSON.stringify({ settings }),
     });
     

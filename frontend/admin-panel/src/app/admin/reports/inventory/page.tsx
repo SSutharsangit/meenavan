@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { Loader2, Package, AlertCircle, AlertTriangle, Layers } from "lucide-react";
+import { formatCurrency, formatQuantity } from "@/lib/admin-config";
 import { apiGetInventoryInsights } from "./_utils/api-service";
+import PageHeader from "@/components/common/PageHeader";
 
 export default function InventoryInsightsPage() {
   const [data, setData] = useState<any>(null);
@@ -22,10 +24,11 @@ export default function InventoryInsightsPage() {
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Inventory Insights</h1>
-        <p className="text-slate-500 mt-1 font-medium">Monitor stock levels and category distribution.</p>
-      </div>
+      <PageHeader
+        title="Inventory Insights"
+        subtitle="Monitor stock levels and category distribution."
+        icon={Package}
+      />
 
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
         <div className="bg-white p-6 rounded-2xl border border-slate-200 shadow-sm flex items-center gap-4">
@@ -81,10 +84,10 @@ export default function InventoryInsightsPage() {
                 <div key={i} className="flex items-center justify-between p-3 rounded-xl border border-slate-100 bg-slate-50/50">
                   <div className="flex flex-col">
                     <span className="font-bold text-slate-900">{item.name_en}</span>
-                    <span className="text-xs text-slate-500">Rs. {item.price_per_kg}/kg</span>
+                    <span className="text-xs text-slate-500">{formatCurrency(item.price_per_kg)} unit price</span>
                   </div>
                   <div className={`px-3 py-1 rounded-lg text-sm font-bold ${Number(item.stock_quantity) <= 0 ? 'bg-red-100 text-red-700' : 'bg-orange-100 text-orange-700'}`}>
-                    {Number(item.stock_quantity).toFixed(2)} kg
+                    {formatQuantity(item.stock_quantity)} units
                   </div>
                 </div>
               ))
@@ -106,7 +109,7 @@ export default function InventoryInsightsPage() {
                   <div key={i} className="space-y-2">
                     <div className="flex items-center justify-between text-sm">
                       <span className="font-bold text-slate-700">{cat.category}</span>
-                      <span className="text-slate-500">{Number(cat.stock).toFixed(2)} kg ({cat.products} items)</span>
+                      <span className="text-slate-500">{formatQuantity(cat.stock)} units ({cat.products} items)</span>
                     </div>
                     <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
                       <div className="h-full bg-blue-500 rounded-full" style={{ width: `${percent}%` }}></div>

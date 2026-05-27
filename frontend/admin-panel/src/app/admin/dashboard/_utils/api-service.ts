@@ -1,3 +1,5 @@
+import { adminApiUrl } from "@/lib/admin-api";
+
 export interface WeeklySales {
   label: string;
   amount: number;
@@ -19,11 +21,9 @@ export interface DashboardStats {
   recent_orders: any[]; // Using any[] for simplicity, you can define an Order interface if needed
 }
 
-const API_BASE_URL = 'http://localhost:8000/api/admin';
-
 export const DashboardService = {
-  getStats: async (): Promise<DashboardStats> => {
-    const res = await fetch(`${API_BASE_URL}/dashboard/stats`);
+  getStats: async (range: string = "today"): Promise<DashboardStats> => {
+    const res = await fetch(adminApiUrl(`dashboard/stats?range=${range}`));
     const data = await res.json();
     
     if (data.is_success) {

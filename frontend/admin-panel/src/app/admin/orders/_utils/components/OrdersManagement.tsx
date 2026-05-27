@@ -1,9 +1,14 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import { apiGetAllOrders, apiDeleteOrder, apiUpdateOrderStatus, OrderFilters } from "../api-service";
+import PageHeader from "@/components/common/PageHeader";
 import ListOrder from "./ListOrder";
 import OrderFilterPanel from "./OrderFilterPanel";
+import OrderDetailSidebar from "./OrderDetailSidebar";
+import { Button } from "@/components/ui/button";
+import { Plus, ShoppingCart } from "lucide-react";
 
 interface Props {
   defaultStatus?: string;
@@ -18,15 +23,30 @@ export default function OrdersManagement({ defaultStatus = "", title = "Orders",
   const [loading, setLoading] = useState(true);
   const [pagination, setPagination] = useState<any>(null);
   const [isFilterOpen, setIsFilterOpen] = useState(false);
-  
-  // Get today's date in YYYY-MM-DD format
-  const today = new Date().toISOString().split('T')[0];
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [selectedOrderId, setSelectedOrderId] = useState<number | null>(null);
+  const [sidebarEditMode, setSidebarEditMode] = useState(false);
+
+  // Helper to calculate before 7 days and next 7 days date range (14 days gap)
+  const getInitialDates = () => {
+    const today = new Date();
+    const start = new Date(today);
+    start.setDate(today.getDate() - 7);
+    const end = new Date(today);
+    end.setDate(today.getDate() + 7);
+    return {
+      start_date: start.toISOString().split('T')[0],
+      end_date: end.toISOString().split('T')[0],
+    };
+  };
+
+  const initialRange = getInitialDates();
 
   const [filters, setFilters] = useState({ 
     status: defaultStatus, 
     payment_status: "", 
-    start_date: today, 
-    end_date: today 
+    start_date: initialRange.start_date,
+    end_date: initialRange.end_date
   });
   const activeFilterCount = [filters.status, filters.payment_status, filters.start_date, filters.end_date].filter(Boolean).length;
 
@@ -57,27 +77,57 @@ export default function OrdersManagement({ defaultStatus = "", title = "Orders",
   };
 
   const handleUpdateStatus = async (id: number, status?: string, payment_status?: string) => {
-    try {
+    const updatePromise = (async () => {
       const res = await apiUpdateOrderStatus(id, status, payment_status);
-      if (res.is_success) {
-        fetchData(pagination?.current_page || 1);
-      } else {
-        alert(res.message || "Failed to update status");
+      if (!res.is_success) {
+        throw new Error(res.message || "Failed to update status");
       }
+      return res;
+    })();
+
+    toast.promise(updatePromise, {
+      loading: "Updating status...",
+      success: "Status updated successfully!",
+      error: (err: any) => err.message || "An error occurred while updating status."
+    });
+
+    try {
+      await updatePromise;
+      fetchData(pagination?.current_page || 1);
     } catch (e) {
       console.error(e);
-      alert("An error occurred while updating status");
     }
   };
 
   return (
     <div className="space-y-6">
-      <div>
-        <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">{title}</h1>
-        <p className="text-slate-500 mt-1 font-medium">{subtitle}</p>
-      </div>
-      <ListOrder data={data} loading={loading} pagination={pagination} onDelete={handleDelete} onUpdateStatus={handleUpdateStatus} searchValue={search} onSearchChange={setSearch} hasActiveFilters={activeFilterCount > 0} onFilterClick={() => setIsFilterOpen(true)} onPageChange={(p) => fetchData(p)} />
-      <OrderFilterPanel isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)} filters={filters} onFilterChange={setFilters} />
+      <PageHeader
+        title={title}
+        subtitle={subtitle}
+        buttonLabel="Create Order"
+        buttonOnClick={() => {
+          setSelectedOrderId(null);
+          setSidebarEditMode(true);
+          setSidebarOpen(true);
+        }}
+        icon={ShoppingCart}
+      />
+      <ListOrder data={data} loading={loading} pagination={pagination} onDelete={handleDelete} onUpdateStatus={handleUpdateStatus} onViewDetail={(order) => {
+        setSelectedOrderId(order.id);
+        setSidebarEditMode(true);
+        setSidebarOpen(true);
+      }} onEditDetail={(order) => {
+        setSelectedOrderId(order.id);
+        setSidebarEditMode(true);
+        setSidebarOpen(true);
+      }} searchValue={search} onSearchChange={setSearch} hasActiveFilters={activeFilterCount > 0} onFilterClick={() => setIsFilterOpen(true)} onPageChange={(p) => fetchData(p)} />
+      <OrderFilterPanel isOpen={isFilterOpen} onClose={() => setIsFilterOpen(false)} filters={filters} onFilterChange={(f) => setFilters({
+        status: f.status,
+        payment_status: f.payment_status,
+        start_date: f.start_date || "",
+        end_date: f.end_date || "",
+      })} />
+      <OrderDetailSidebar isOpen={sidebarOpen} onClose={() => setSidebarOpen(false)} orderId={selectedOrderId} onOrderUpdated={() => fetchData(pagination?.current_page || 1)} initialEditMode={sidebarEditMode} />
     </div>
   );
 }

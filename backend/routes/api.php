@@ -3,7 +3,8 @@
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 
-// Auth Routes (Optional for now, but good to have placeholders)
+// Authentication routes
+Route::post('/auth/login', [\App\Http\Controllers\AuthController::class, 'login']);
 Route::post('/auth/admin/login', [\App\Http\Controllers\AuthController::class, 'adminLogin']);
 Route::post('/auth/logout', [\App\Http\Controllers\AuthController::class, 'logout'])->middleware('auth:sanctum');
 
@@ -27,6 +28,8 @@ Route::prefix('admin')->group(function () {
     
     // Products
     Route::apiResource('products', \App\Http\Controllers\ProductController::class)->except(['index', 'show']);
+    Route::get('product-groups/product-options', [\App\Http\Controllers\ProductGroupController::class, 'productOptions']);
+    Route::apiResource('product-groups', \App\Http\Controllers\ProductGroupController::class);
 
     // Orders
     Route::apiResource('orders', \App\Http\Controllers\OrderController::class);

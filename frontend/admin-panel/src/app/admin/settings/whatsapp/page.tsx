@@ -7,6 +7,8 @@ import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import { Save, MessageCircle, Loader2 } from "lucide-react";
 import { SettingsService } from "../business/_utils/api-service";
+import { toast } from "react-hot-toast";
+import PageHeader from "@/components/common/PageHeader";
 
 export default function WhatsAppSettingsPage() {
   const [whatsappNumber, setWhatsappNumber] = useState("");
@@ -23,22 +25,23 @@ export default function WhatsAppSettingsPage() {
       const data = await SettingsService.getWhatsAppSettings();
       setWhatsappNumber(data.whatsapp_number);
     } catch (error: any) {
-      alert(error.message || "Failed to load WhatsApp settings");
+      toast.error(error.message || "Failed to load WhatsApp settings");
     } finally {
       setLoading(false);
     }
   };
 
   const handleSave = async () => {
-    try {
-      setSaving(true);
-      await SettingsService.updateWhatsAppSettings({ whatsapp_number: whatsappNumber });
-      alert("WhatsApp settings updated successfully");
-    } catch (error: any) {
-      alert(error.message || "Failed to update settings");
-    } finally {
-      setSaving(false);
-    }
+    setSaving(true);
+    const promise = SettingsService.updateWhatsAppSettings({ whatsapp_number: whatsappNumber });
+
+    await toast.promise(promise, {
+      loading: "Updating WhatsApp integration...",
+      success: "WhatsApp settings updated successfully! 💬",
+      error: (error: any) => error?.message || "Failed to update settings ❌",
+    });
+
+    setSaving(false);
   };
 
   if (loading) {
@@ -51,12 +54,11 @@ export default function WhatsAppSettingsPage() {
 
   return (
     <div className="space-y-6 max-w-4xl">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">WhatsApp Integration</h1>
-          <p className="text-slate-500 mt-1 font-medium">Configure your WhatsApp number to let customers contact you easily.</p>
-        </div>
-      </div>
+      <PageHeader
+        title="Messaging Integration"
+        subtitle="Configure your primary messaging number for customer communication workflows."
+        icon={MessageCircle}
+      />
 
       <Card className="border-slate-200 shadow-sm rounded-2xl p-6 sm:p-8">
         <div className="space-y-8">
@@ -65,7 +67,7 @@ export default function WhatsAppSettingsPage() {
             <div className="md:col-span-1 space-y-1">
               <Label className="text-base font-semibold text-slate-800 flex items-center gap-2">
                 <MessageCircle className="w-4 h-4 text-emerald-500" />
-                WhatsApp Number
+                Messaging Number
               </Label>
               <p className="text-sm text-slate-500">Include your country code without any + or spaces (e.g., 94712341017).</p>
             </div>

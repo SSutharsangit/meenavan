@@ -2,6 +2,7 @@ import { Edit, Trash2, MoreHorizontal } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import DataTable, { Column } from "@/components/common/DataTable";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { formatCurrency } from "@/lib/admin-config";
 
 interface Props {
   data: any[]; loading: boolean; pagination: any;
@@ -15,7 +16,7 @@ export default function ListCustomer({ data, loading, pagination, onEdit, onDele
     { key: "phone", label: "Phone", render: (row) => <span className="text-slate-600 font-medium">{row.phone}</span> },
     { key: "email", label: "Email", render: (row) => <span className="text-slate-500 text-sm">{row.email || "—"}</span> },
     { key: "total_orders", label: "Orders", render: (row) => <span className="font-bold text-slate-900">{row.total_orders}</span> },
-    { key: "total_spent", label: "Total Spent", render: (row) => <span className="font-bold text-slate-900">Rs. {Number(row.total_spent || 0).toFixed(2)}</span> },
+    { key: "total_spent", label: "Total Spent", render: (row) => <span className="font-bold text-slate-900">{formatCurrency(row.total_spent || 0)}</span> },
     {
       key: "is_active", label: "Status",
       render: (row) => row.is_active

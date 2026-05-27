@@ -12,4 +12,11 @@ class Product extends Model
     {
         return $this->belongsTo(Category::class);
     }
+
+    public function groups()
+    {
+        return $this->belongsToMany(ProductGroup::class)
+            ->withPivot('sort_order')
+            ->withTimestamps();
+    }
 }

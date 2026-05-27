@@ -2,11 +2,20 @@
 
 import { motion } from "framer-motion";
 import Link from "next/link";
-import { categories, products } from "../data";
+import { useState, useEffect } from "react";
+import { fetchCategories, fetchProducts } from "../utils/api";
 
 const fadeUp = { initial: { opacity: 0, y: 30 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true }, transition: { duration: 0.5 } };
 
 export default function CategoriesPage() {
+  const [categories, setCategories] = useState<any[]>([]);
+  const [products, setProducts] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetchCategories().then(setCategories);
+    fetchProducts().then(setProducts);
+  }, []);
+
   return (
     <>
       {/* Page Header */}

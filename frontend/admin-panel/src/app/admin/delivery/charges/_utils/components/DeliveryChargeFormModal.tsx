@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import { Loader2, Save, MapPin, DollarSign, Wallet } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -33,8 +34,7 @@ export default function DeliveryChargeFormModal({ isOpen, onClose, isEditing, it
   }, [isOpen, isEditing, item]);
 
   const handleSave = async () => {
-    try {
-      setSaving(true);
+    const savePromise = (async () => {
       const payload = {
         delivery_area_id: Number(formData.delivery_area_id),
         min_order_amount: Number(formData.min_order_amount) || 0,
@@ -43,8 +43,28 @@ export default function DeliveryChargeFormModal({ isOpen, onClose, isEditing, it
         is_active: formData.is_active,
       };
       const res = isEditing ? await apiUpdateDeliveryCharge(item.id, payload) : await apiCreateDeliveryCharge(payload);
-      if (res.is_success) { onClose(); onSuccess(); } else alert(res.message || "Failed to save.");
-    } catch (e) { alert("An error occurred."); } finally { setSaving(false); }
+      if (!res.is_success) {
+        throw new Error(res.message || "Failed to save.");
+      }
+      return res;
+    })();
+
+    toast.promise(savePromise, {
+      loading: isEditing ? "Saving delivery charge..." : "Creating delivery charge...",
+      success: isEditing ? "Delivery charge saved successfully!" : "Delivery charge created successfully!",
+      error: (err: any) => err.message || "An error occurred while saving."
+    });
+
+    try {
+      setSaving(true);
+      await savePromise;
+      onClose();
+      onSuccess();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -60,7 +80,7 @@ export default function DeliveryChargeFormModal({ isOpen, onClose, isEditing, it
               <Label className="text-slate-700">Delivery Area</Label>
               <div className="relative">
                 <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 z-10 pointer-events-none" />
-                <Select value={formData.delivery_area_id} onValueChange={(val) => setFormData({...formData, delivery_area_id: val})}>
+                <Select value={formData.delivery_area_id} onValueChange={(val) => setFormData({...formData, delivery_area_id: val || ""})}>
                   <SelectTrigger className="pl-9 rounded-xl border-slate-200">
                     <SelectValue placeholder="Select Area" />
                   </SelectTrigger>

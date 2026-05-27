@@ -3,8 +3,8 @@ import OrdersManagement from "../_utils/components/OrdersManagement";
 export default function WhatsappOrdersPage() {
   return (
     <OrdersManagement 
-      title="WhatsApp Orders" 
-      subtitle="Orders requiring WhatsApp confirmation or interaction." 
+      title="Message Orders" 
+      subtitle="Orders that require direct customer follow-up or messaging workflows." 
     />
   );
 }

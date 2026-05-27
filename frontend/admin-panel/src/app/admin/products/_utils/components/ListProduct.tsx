@@ -1,6 +1,7 @@
 import { Edit, Trash2, MoreHorizontal } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import DataTable, { Column } from "@/components/common/DataTable";
+import { formatCurrency, formatQuantity } from "@/lib/admin-config";
 import {
   DropdownMenu,
   DropdownMenuContent,
@@ -66,10 +67,10 @@ export default function ListProduct({
     },
     {
       key: "price_per_kg",
-      label: "Price (Rs/Kg)",
+      label: "Unit Price",
       render: (row) => (
         <div>
-          <div className="font-bold text-slate-900">Rs. {Number(row.price_per_kg).toFixed(2)}</div>
+          <div className="font-bold text-slate-900">{formatCurrency(row.price_per_kg)}</div>
           {row.discount_percentage > 0 && (
             <div className="text-xs text-red-500 line-through">-{row.discount_percentage}%</div>
           )}
@@ -78,9 +79,9 @@ export default function ListProduct({
     },
     {
       key: "stock_quantity",
-      label: "Stock (Kg)",
+      label: "Available Units",
       render: (row) => (
-        <span className="text-slate-600 font-medium">{Number(row.stock_quantity).toFixed(2)}</span>
+        <span className="text-slate-600 font-medium">{formatQuantity(row.stock_quantity)}</span>
       ),
     },
     {

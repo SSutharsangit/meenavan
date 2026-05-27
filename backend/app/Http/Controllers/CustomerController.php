@@ -17,9 +17,22 @@ class CustomerController extends Controller
         ]);
     }
 
-    public function index()
+    public function index(Request $request)
     {
-        $data = Customer::latest()->paginate(10);
+        $query = Customer::query();
+
+        if ($request->has('search') && $request->search !== '') {
+            $searchTerm = '%' . $request->search . '%';
+            $query->where(function ($q) use ($searchTerm) {
+                $q->where('name', 'like', $searchTerm)
+                  ->orWhere('phone', 'like', $searchTerm)
+                  ->orWhere('email', 'like', $searchTerm);
+            });
+        }
+
+        $perPage = min(max((int) $request->input('per_page', 10), 1), 100);
+        $data = $query->latest()->paginate($perPage);
+
         $result = [
             'data' => $data->items(),
             'current_page' => $data->currentPage(),

@@ -68,7 +68,7 @@ export default function FilterPanel({ isOpen, onClose, categories, filters, onFi
                 <Tags className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none z-10" />
                 <Select 
                   value={filters.category_id} 
-                  onValueChange={(val) => handleChange("category_id", val === "all" ? "" : val)}
+                  onValueChange={(val) => handleChange("category_id", val === "all" || !val ? "" : val)}
                 >
                   <SelectTrigger className="w-full pl-9 rounded-xl border-slate-200 focus:ring-blue-500">
                     <SelectValue placeholder="All Categories">
@@ -94,7 +94,7 @@ export default function FilterPanel({ isOpen, onClose, categories, filters, onFi
                 <Eye className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none z-10" />
                 <Select 
                   value={filters.is_available || "all"} 
-                  onValueChange={(val) => handleChange("is_available", val === "all" ? "" : val)}
+                  onValueChange={(val) => handleChange("is_available", val === "all" || !val ? "" : val)}
                 >
                   <SelectTrigger className="w-full pl-9 rounded-xl border-slate-200 focus:ring-blue-500">
                     <SelectValue placeholder="All" />
@@ -115,7 +115,7 @@ export default function FilterPanel({ isOpen, onClose, categories, filters, onFi
                 <Package className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none z-10" />
                 <Select 
                   value={filters.stock_status || "all"} 
-                  onValueChange={(val) => handleChange("stock_status", val === "all" ? "" : val)}
+                  onValueChange={(val) => handleChange("stock_status", val === "all" || !val ? "" : val)}
                 >
                   <SelectTrigger className="w-full pl-9 rounded-xl border-slate-200 focus:ring-blue-500">
                     <SelectValue placeholder="All" />

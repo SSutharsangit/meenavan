@@ -4,9 +4,10 @@ import { motion } from "framer-motion";
 import { Star, Heart, Minus, Plus, ShoppingBag, Truck, ShieldCheck, RotateCcw, Check, ChevronRight, Fish, MessageCircle } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useParams } from "next/navigation";
-import { products, cuttingOptions } from "../../data";
+import { cuttingOptions } from "../../data";
+import { fetchProductById, fetchProducts } from "../../utils/api";
 import ProductCard from "../../components/ProductCard";
 import { useCartStore } from "../../store/cartStore";
 import { sendProductInquiry } from "../../utils/whatsapp";
@@ -15,14 +16,37 @@ import { sendProductInquiry } from "../../utils/whatsapp";
 
 export default function ProductDetailPage() {
   const params = useParams();
-  const productId = Number(params.id);
-  const product = products.find(p => p.id === productId);
+  const productId = String(params.id);
   const addItem = useCartStore(s => s.addItem);
+
+  const [product, setProduct] = useState<any>(null);
+  const [relatedProducts, setRelatedProducts] = useState<any[]>([]);
+  const [loading, setLoading] = useState(true);
 
   const [qty, setQty] = useState(1);
   const [selectedCut, setSelectedCut] = useState("whole");
   const [activeImage, setActiveImage] = useState(0);
   const [added, setAdded] = useState(false);
+
+  useEffect(() => {
+    fetchProductById(productId).then(data => {
+      setProduct(data);
+      if (data) {
+        fetchProducts({ category_id: data.categoryId }).then(all => {
+          setRelatedProducts(all.filter((p: any) => p.id !== data.id).slice(0, 4));
+        });
+      }
+      setLoading(false);
+    });
+  }, [productId]);
+
+  if (loading) {
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="text-center text-slate-500">Loading...</div>
+      </div>
+    );
+  }
 
   if (!product) {
     return (
@@ -36,8 +60,7 @@ export default function ProductDetailPage() {
     );
   }
 
-  const relatedProducts = products.filter(p => p.categoryId === product.categoryId && p.id !== product.id).slice(0, 4);
-  const discount = Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100);
+  const discount = Math.round(((product.oldPrice - product.price) / product.oldPrice) * 100) || 0;
 
   const handleAddToCart = () => {
     for (let i = 0; i < qty; i++) {

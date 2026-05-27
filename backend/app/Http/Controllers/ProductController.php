@@ -77,14 +77,28 @@ class ProductController extends Controller
             }
         }
 
-        $data = $query->latest()->paginate(10);
-        $result = [
-            'data' => $data->items(),
-            'current_page' => $data->currentPage(),
-            'total_records' => $data->total(),
-            'total_pages' => $data->lastPage(),
-            'per_page' => $data->perPage(),
-        ];
+        $perPage = (int) $request->input('per_page', 10);
+        
+        if ($perPage === -1) {
+            $data = $query->latest()->get();
+            $result = [
+                'data' => $data,
+                'current_page' => 1,
+                'total_records' => $data->count(),
+                'total_pages' => 1,
+                'per_page' => $data->count(),
+            ];
+        } else {
+            $perPage = min(max($perPage, 1), 500);
+            $data = $query->latest()->paginate($perPage);
+            $result = [
+                'data' => $data->items(),
+                'current_page' => $data->currentPage(),
+                'total_records' => $data->total(),
+                'total_pages' => $data->lastPage(),
+                'per_page' => $data->perPage(),
+            ];
+        }
         return $this->formatResponse(true, 'Products retrieved successfully', $result);
     }
 

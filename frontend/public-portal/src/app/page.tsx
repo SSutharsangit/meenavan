@@ -5,12 +5,22 @@ import { ArrowRight, Fish, ShieldCheck, Truck, Ship, Star, Phone, ChevronRight, 
 import Link from "next/link";
 import Image from "next/image";
 import ProductCard from "./components/ProductCard";
-import { categories, products, testimonials } from "./data";
+import { useState, useEffect } from "react";
+import { testimonials } from "./data";
+import { fetchCategories, fetchProducts } from "./utils/api";
 import { openWhatsAppChat } from "./utils/whatsapp";
 
 const fadeUp = { initial: { opacity: 0, y: 30 }, whileInView: { opacity: 1, y: 0 }, viewport: { once: true }, transition: { duration: 0.5 } };
 
 export default function Home() {
+  const [categories, setCategories] = useState<any[]>([]);
+  const [products, setProducts] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetchCategories().then(data => setCategories(data.slice(0, 6)));
+    fetchProducts().then(data => setProducts(data.slice(0, 4)));
+  }, []);
+
   return (
     <>
       {/* Hero */}

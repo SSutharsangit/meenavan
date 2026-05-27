@@ -12,6 +12,7 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { ADMIN_PANEL_EMAIL, ADMIN_PANEL_SHORT_NAME } from "@/lib/admin-config";
 
 export function Topbar() {
   return (
@@ -43,15 +44,15 @@ export function Topbar() {
         <DropdownMenu>
           <DropdownMenuTrigger className="relative flex h-8 w-8 items-center justify-center rounded-full outline-none focus:ring-2 focus:ring-slate-400">
             <Avatar className="h-8 w-8 border border-slate-200 cursor-pointer">
-              <AvatarFallback className="bg-blue-100 text-blue-700 font-bold">AD</AvatarFallback>
+              <AvatarFallback className="bg-blue-100 text-blue-700 font-bold">{ADMIN_PANEL_SHORT_NAME}</AvatarFallback>
             </Avatar>
           </DropdownMenuTrigger>
           <DropdownMenuContent className="w-56" align="end">
             <DropdownMenuLabel className="font-normal">
               <div className="flex flex-col space-y-1">
-                <p className="text-sm font-medium leading-none">Admin User</p>
+                <p className="text-sm font-medium leading-none">Platform Admin</p>
                 <p className="text-xs leading-none text-slate-500">
-                  admin@meenavan.lk
+                  {ADMIN_PANEL_EMAIL}
                 </p>
               </div>
             </DropdownMenuLabel>

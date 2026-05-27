@@ -2,9 +2,9 @@
 
 import { motion } from "framer-motion";
 import { SlidersHorizontal, Search, ChevronDown, Grid3X3, List, X } from "lucide-react";
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import ProductCard from "../components/ProductCard";
-import { products, categories } from "../data";
+import { fetchProducts, fetchCategories } from "../utils/api";
 
 const sortOptions = [
   { label: "Popularity", value: "popular" },
@@ -21,6 +21,14 @@ export default function ProductsPage() {
   const [showFilters, setShowFilters] = useState(false);
   const [priceRange, setPriceRange] = useState<[number, number]>([0, 3000]);
   const [inStockOnly, setInStockOnly] = useState(false);
+  
+  const [products, setProducts] = useState<any[]>([]);
+  const [categories, setCategories] = useState<any[]>([]);
+
+  useEffect(() => {
+    fetchProducts().then(setProducts);
+    fetchCategories().then(setCategories);
+  }, []);
 
   const filteredProducts = useMemo(() => {
     let filtered = [...products];

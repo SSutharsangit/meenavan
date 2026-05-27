@@ -1,10 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { apiGetAllStocks, apiDeleteStock } from "../api-service";
 import ListStock from "./ListStock";
+import PageHeader from "@/components/common/PageHeader";
+import { Boxes } from "lucide-react";
 
 export default function StockManagement() {
   const [search, setSearch] = useState("");
@@ -34,7 +34,11 @@ export default function StockManagement() {
 
   return (
     <div className="space-y-6">
-      <div><h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Stock & Inventory</h1><p className="text-slate-500 mt-1 font-medium">Track all stock movements and adjustments.</p></div>
+      <PageHeader
+        title="Stock & Inventory"
+        subtitle="Track all stock movements and adjustments."
+        icon={Boxes}
+      />
       <ListStock data={data} loading={loading} pagination={pagination} onDelete={handleDelete} searchValue={search} onSearchChange={setSearch} onPageChange={(p) => fetchData(p)} />
     </div>
   );

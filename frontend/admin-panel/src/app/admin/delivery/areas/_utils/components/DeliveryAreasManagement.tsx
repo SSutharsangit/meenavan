@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus } from "lucide-react";
+import { Plus, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { apiGetAllDeliveryAreas, apiDeleteDeliveryArea } from "../api-service";
 import ListDeliveryArea from "./ListDeliveryArea";
 import DeliveryAreaFormModal from "./DeliveryAreaFormModal";
+import PageHeader from "@/components/common/PageHeader";
 
 export default function DeliveryAreasManagement() {
   const [search, setSearch] = useState("");
@@ -40,13 +41,13 @@ export default function DeliveryAreasManagement() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Delivery Areas</h1>
-          <p className="text-slate-500 mt-1 font-medium">Manage supported delivery zones and postal codes.</p>
-        </div>
-        <Button onClick={handleOpenCreate} className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-sm"><Plus className="mr-2 h-4 w-4" /> Add Area</Button>
-      </div>
+      <PageHeader
+        title="Delivery Areas"
+        subtitle="Manage supported delivery zones and postal codes."
+        buttonLabel="Add Area"
+        buttonOnClick={handleOpenCreate}
+        icon={MapPin}
+      />
       <ListDeliveryArea data={data} loading={loading} pagination={pagination} onEdit={handleOpenEdit} onDelete={handleDelete} searchValue={search} onSearchChange={setSearch} onPageChange={(p) => fetchData(p)} />
       <DeliveryAreaFormModal isOpen={isSheetOpen} onClose={() => setIsSheetOpen(false)} isEditing={isEditing} item={selectedItem} onSuccess={() => fetchData(pagination?.current_page || 1)} />
     </div>

@@ -1,11 +1,12 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus } from "lucide-react";
+import { Plus, FolderOpen } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { apiGetAllCategories, apiDeleteCategory } from "../api-service";
 import ListCategory from "./ListCategory";
 import CategoryFormModal from "./CategoryFormModal";
+import PageHeader from "@/components/common/PageHeader";
 
 export default function CategoriesManagement() {
   const [search, setSearch] = useState("");
@@ -40,15 +41,13 @@ export default function CategoriesManagement() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Categories</h1>
-          <p className="text-slate-500 mt-1 font-medium">Organize your products into categories.</p>
-        </div>
-        <Button onClick={handleOpenCreate} className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-sm">
-          <Plus className="mr-2 h-4 w-4" /> Add Category
-        </Button>
-      </div>
+      <PageHeader
+        title="Categories"
+        subtitle="Organize your products into categories."
+        buttonLabel="Add Category"
+        buttonOnClick={handleOpenCreate}
+        icon={FolderOpen}
+      />
       <ListCategory data={data} loading={loading} pagination={pagination} onEdit={handleOpenEdit} onDelete={handleDelete} searchValue={search} onSearchChange={setSearch} onPageChange={(p) => fetchData(p)} />
       <CategoryFormModal isOpen={isSheetOpen} onClose={() => setIsSheetOpen(false)} isEditing={isEditing} item={selectedItem} onSuccess={() => fetchData(pagination?.current_page || 1)} />
     </div>

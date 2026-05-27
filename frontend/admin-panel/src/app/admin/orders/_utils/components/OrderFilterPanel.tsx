@@ -1,11 +1,10 @@
-import { ShoppingBag, Package, Eye, Calendar } from "lucide-react";
+import { ShoppingBag, Package, RotateCcw } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Label } from "@/components/ui/label";
 import { Badge } from "@/components/ui/badge";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
-import { RotateCcw } from "lucide-react";
-import { Input } from "@/components/ui/input";
+import DatePicker from "@/components/common/DatePicker";
 
 interface Props {
   isOpen: boolean; onClose: () => void;
@@ -15,9 +14,15 @@ interface Props {
 
 export default function OrderFilterPanel({ isOpen, onClose, filters, onFilterChange }: Props) {
   const handleChange = (key: string, value: string) => onFilterChange({ ...filters, [key]: value });
-  
-  const today = new Date().toISOString().split('T')[0];
-  const handleReset = () => onFilterChange({ status: "", payment_status: "", start_date: today, end_date: today });
+
+  const handleReset = () => {
+    onFilterChange({
+      status: "",
+      payment_status: "",
+      start_date: "",
+      end_date: "",
+    });
+  };
   
   const activeCount = [filters.status, filters.payment_status, filters.start_date, filters.end_date].filter(Boolean).length;
 
@@ -33,26 +38,23 @@ export default function OrderFilterPanel({ isOpen, onClose, filters, onFilterCha
           </SheetHeader>
           <div className="space-y-5">
             <div className="grid grid-cols-2 gap-3">
-              <div className="space-y-2">
-                <Label className="text-slate-700 font-semibold text-xs">Start Date</Label>
-                <div className="relative">
-                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none z-10" />
-                  <Input type="date" className="pl-9 rounded-xl border-slate-200" value={filters.start_date || ""} onChange={(e) => handleChange("start_date", e.target.value)} />
-                </div>
-              </div>
-              <div className="space-y-2">
-                <Label className="text-slate-700 font-semibold text-xs">End Date</Label>
-                <div className="relative">
-                  <Calendar className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none z-10" />
-                  <Input type="date" className="pl-9 rounded-xl border-slate-200" value={filters.end_date || ""} onChange={(e) => handleChange("end_date", e.target.value)} />
-                </div>
-              </div>
+              <DatePicker
+                label="Start Date"
+                value={filters.start_date || ""}
+                onChange={(val) => handleChange("start_date", val)}
+              />
+              <DatePicker
+                label="End Date"
+                value={filters.end_date || ""}
+                onChange={(val) => handleChange("end_date", val)}
+                align="right"
+              />
             </div>
             <div className="space-y-2">
               <Label className="text-slate-700 font-semibold text-xs">Order Status</Label>
               <div className="relative">
                 <ShoppingBag className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none z-10" />
-                <Select value={filters.status || "all"} onValueChange={(v) => handleChange("status", v === "all" ? "" : v)}>
+                <Select value={filters.status || "all"} onValueChange={(v) => handleChange("status", v === "all" || !v ? "" : v)}>
                   <SelectTrigger className="w-full pl-9 rounded-xl border-slate-200"><SelectValue placeholder="All" /></SelectTrigger>
                   <SelectContent className="rounded-xl border-slate-200 shadow-md">
                     <SelectItem value="all">All Statuses</SelectItem>
@@ -70,7 +72,7 @@ export default function OrderFilterPanel({ isOpen, onClose, filters, onFilterCha
               <Label className="text-slate-700 font-semibold text-xs">Payment Status</Label>
               <div className="relative">
                 <Package className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none z-10" />
-                <Select value={filters.payment_status || "all"} onValueChange={(v) => handleChange("payment_status", v === "all" ? "" : v)}>
+                <Select value={filters.payment_status || "all"} onValueChange={(v) => handleChange("payment_status", v === "all" || !v ? "" : v)}>
                   <SelectTrigger className="w-full pl-9 rounded-xl border-slate-200"><SelectValue placeholder="All" /></SelectTrigger>
                   <SelectContent className="rounded-xl border-slate-200 shadow-md">
                     <SelectItem value="all">All</SelectItem>

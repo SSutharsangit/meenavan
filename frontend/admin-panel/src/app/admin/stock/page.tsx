@@ -1,5 +1,5 @@
-import StockManagement from "./_utils/components/StockManagement";
+import { redirect } from "next/navigation";
 
 export default function StockPage() {
-  return <StockManagement />;
+  redirect("/admin/product-groups");
 }

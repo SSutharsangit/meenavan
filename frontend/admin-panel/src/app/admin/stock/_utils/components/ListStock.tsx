@@ -2,6 +2,7 @@ import { Trash2, MoreHorizontal } from "lucide-react";
 import { Badge } from "@/components/ui/badge";
 import DataTable, { Column } from "@/components/common/DataTable";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { formatQuantity } from "@/lib/admin-config";
 
 interface Props {
   data: any[]; loading: boolean; pagination: any; onDelete: (id: number) => void;
@@ -18,7 +19,7 @@ export default function ListStock({ data, loading, pagination, onDelete, searchV
   const columns: Column<any>[] = [
     { key: "product_id", label: "Product ID", render: (row) => <span className="font-bold text-slate-900">#{row.product_id}</span> },
     { key: "type", label: "Type", render: (row) => <Badge className={`${typeColors[row.type] || typeColors.adjustment} hover:bg-transparent shadow-none capitalize`}>{row.type}</Badge> },
-    { key: "quantity_kg", label: "Qty (Kg)", render: (row) => <span className="font-bold text-slate-900">{Number(row.quantity_kg).toFixed(2)}</span> },
+    { key: "quantity_kg", label: "Quantity", render: (row) => <span className="font-bold text-slate-900">{formatQuantity(row.quantity_kg)}</span> },
     { key: "reason", label: "Reason", render: (row) => <span className="text-slate-500 text-sm">{row.reason || "—"}</span> },
     { key: "created_at", label: "Date", render: (row) => <span className="text-slate-500 text-sm">{row.created_at ? new Date(row.created_at).toLocaleDateString() : "—"}</span> },
     {

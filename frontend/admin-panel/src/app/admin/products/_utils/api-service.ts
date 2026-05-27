@@ -1,3 +1,5 @@
+import { adminApiUrl, apiUrl, defaultHeaders } from "@/lib/admin-api";
+
 export const handleApiError = (error: any) => {
   return {
     is_success: false,
@@ -22,7 +24,7 @@ export const apiGetAllProducts = async (page: number = 1, filters?: ProductFilte
     if (filters?.is_available !== undefined && filters.is_available !== '') params.append('is_available', filters.is_available);
     if (filters?.stock_status) params.append('stock_status', filters.stock_status);
 
-    const res = await fetch(`http://127.0.0.1:8000/api/products?${params.toString()}`);
+    const res = await fetch(apiUrl(`products?${params.toString()}`));
     const json = await res.json();
     return {
       is_success: json.is_success,
@@ -36,7 +38,7 @@ export const apiGetAllProducts = async (page: number = 1, filters?: ProductFilte
 
 export const apiGetCategories = async () => {
   try {
-    const res = await fetch(`http://127.0.0.1:8000/api/categories`);
+    const res = await fetch(apiUrl("categories"));
     const json = await res.json();
     return {
       is_success: json.is_success,
@@ -50,11 +52,9 @@ export const apiGetCategories = async () => {
 
 export const apiCreateProduct = async (payload: FormData) => {
   try {
-    const res = await fetch(`http://127.0.0.1:8000/api/admin/products`, {
+    const res = await fetch(adminApiUrl("products"), {
       method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-      },
+      headers: defaultHeaders,
       body: payload,
     });
     const json = await res.json();
@@ -70,11 +70,9 @@ export const apiCreateProduct = async (payload: FormData) => {
 
 export const apiUpdateProduct = async (id: number, payload: FormData) => {
   try {
-    const res = await fetch(`http://127.0.0.1:8000/api/admin/products/${id}?_method=PUT`, {
+    const res = await fetch(adminApiUrl(`products/${id}?_method=PUT`), {
       method: 'POST',
-      headers: {
-        'Accept': 'application/json',
-      },
+      headers: defaultHeaders,
       body: payload,
     });
     const json = await res.json();
@@ -90,11 +88,9 @@ export const apiUpdateProduct = async (id: number, payload: FormData) => {
 
 export const apiDeleteProduct = async (id: number) => {
   try {
-    const res = await fetch(`http://127.0.0.1:8000/api/admin/products/${id}`, {
+    const res = await fetch(adminApiUrl(`products/${id}`), {
       method: 'DELETE',
-      headers: {
-        'Accept': 'application/json',
-      },
+      headers: defaultHeaders,
     });
     const json = await res.json();
     return {

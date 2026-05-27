@@ -1,4 +1,4 @@
-const API_BASE = 'http://127.0.0.1:8000/api';
+import { adminApiUrl, apiUrl, defaultHeaders } from "@/lib/admin-api";
 
 export const handleApiError = (error: any) => ({
   is_success: false,
@@ -10,7 +10,7 @@ export const apiGetAllCategories = async (page: number = 1, search?: string) => 
   try {
     const params = new URLSearchParams({ page: page.toString() });
     if (search) params.append('search', search);
-    const res = await fetch(`${API_BASE}/categories?${params.toString()}`);
+    const res = await fetch(`${apiUrl(`categories?${params.toString()}`)}`);
     const json = await res.json();
     return { is_success: json.is_success, result: json.result ?? json, message: json.message || '' };
   } catch (err) { return handleApiError(err); }
@@ -18,9 +18,9 @@ export const apiGetAllCategories = async (page: number = 1, search?: string) => 
 
 export const apiCreateCategory = async (payload: FormData) => {
   try {
-    const res = await fetch(`${API_BASE}/admin/categories`, {
+    const res = await fetch(adminApiUrl("categories"), {
       method: 'POST',
-      headers: { 'Accept': 'application/json' },
+      headers: defaultHeaders,
       body: payload,
     });
     const json = await res.json();
@@ -30,9 +30,9 @@ export const apiCreateCategory = async (payload: FormData) => {
 
 export const apiUpdateCategory = async (id: number, payload: FormData) => {
   try {
-    const res = await fetch(`${API_BASE}/admin/categories/${id}?_method=PUT`, {
+    const res = await fetch(adminApiUrl(`categories/${id}?_method=PUT`), {
       method: 'POST',
-      headers: { 'Accept': 'application/json' },
+      headers: defaultHeaders,
       body: payload,
     });
     const json = await res.json();
@@ -42,8 +42,8 @@ export const apiUpdateCategory = async (id: number, payload: FormData) => {
 
 export const apiDeleteCategory = async (id: number) => {
   try {
-    const res = await fetch(`${API_BASE}/admin/categories/${id}`, {
-      method: 'DELETE', headers: { 'Accept': 'application/json' },
+    const res = await fetch(adminApiUrl(`categories/${id}`), {
+      method: 'DELETE', headers: defaultHeaders,
     });
     const json = await res.json();
     return { is_success: res.ok || json.is_success, result: json.result ?? json, message: json.message || 'Deleted successfully' };

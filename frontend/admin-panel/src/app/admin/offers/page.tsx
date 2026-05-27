@@ -1,17 +1,17 @@
 "use client";
 
 import { Card } from "@/components/ui/card";
-import { Settings, Construction } from "lucide-react";
+import { Construction, Percent } from "lucide-react";
+import PageHeader from "@/components/common/PageHeader";
 
 export default function GenericPage() {
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Offers & Discounts</h1>
-          <p className="text-slate-500 mt-1 font-medium">Manage promotional offers and discount codes.</p>
-        </div>
-      </div>
+      <PageHeader
+        title="Offers & Discounts"
+        subtitle="Manage promotional offers and discount codes."
+        icon={Percent}
+      />
 
       <Card className="border-slate-200 shadow-sm rounded-2xl flex flex-col items-center justify-center p-24 text-center min-h-[400px]">
         <div className="h-20 w-20 rounded-full bg-blue-50 text-blue-600 flex items-center justify-center mb-6">

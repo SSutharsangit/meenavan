@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import { Loader2, Save, Type, Coins, Percent, Package, Tags } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -82,9 +83,7 @@ export default function ProductFormModal({ isOpen, onClose, isEditing, product, 
   };
 
   const handleSave = async () => {
-    try {
-      setSaving(true);
-      
+    const savePromise = (async () => {
       const payload = new FormData();
       payload.append("name_en", formData.name_en);
       payload.append("name_ta", formData.name_ta);
@@ -102,15 +101,25 @@ export default function ProductFormModal({ isOpen, onClose, isEditing, product, 
         ? await apiUpdateProduct(product.id, payload)
         : await apiCreateProduct(payload);
 
-      if (res.is_success) {
-        onClose();
-        onSuccess();
-      } else {
-        alert(res.message || "Failed to save product.");
+      if (!res.is_success) {
+        throw new Error(res.message || "Failed to save product.");
       }
+      return res;
+    })();
+
+    toast.promise(savePromise, {
+      loading: isEditing ? "Updating product..." : "Creating product...",
+      success: isEditing ? "Product updated successfully!" : "Product created successfully!",
+      error: (err: any) => err.message || "An error occurred while saving."
+    });
+
+    try {
+      setSaving(true);
+      await savePromise;
+      onClose();
+      onSuccess();
     } catch (error) {
       console.error("Save error:", error);
-      alert("An error occurred while saving.");
     } finally {
       setSaving(false);
     }
@@ -171,7 +180,7 @@ export default function ProductFormModal({ isOpen, onClose, isEditing, product, 
                 <Type className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <Input 
                   id="name_en" 
-                  placeholder="e.g. Yellow Fin Tuna" 
+                  placeholder="e.g. Premium Package" 
                   className="pl-9 rounded-xl border-slate-200 focus-visible:ring-blue-500"
                   value={formData.name_en}
                   onChange={(e) => setFormData({...formData, name_en: e.target.value})}
@@ -199,7 +208,7 @@ export default function ProductFormModal({ isOpen, onClose, isEditing, product, 
                 <Tags className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400 pointer-events-none z-10" />
                 <Select 
                   value={formData.category_id} 
-                  onValueChange={(val) => setFormData({...formData, category_id: val})}
+                  onValueChange={(val) => setFormData({...formData, category_id: val || ""})}
                 >
                   <SelectTrigger className="pl-9 rounded-xl border-slate-200 focus:ring-blue-500">
                     <SelectValue placeholder="Select a category">
@@ -217,7 +226,7 @@ export default function ProductFormModal({ isOpen, onClose, isEditing, product, 
 
             <div className="grid grid-cols-2 gap-4">
               <div className="space-y-2">
-                <Label htmlFor="price" className="text-slate-700">Price (Rs/Kg)</Label>
+                <Label htmlFor="price" className="text-slate-700">Unit Price</Label>
                 <div className="relative">
                   <Coins className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                   <Input 
@@ -247,7 +256,7 @@ export default function ProductFormModal({ isOpen, onClose, isEditing, product, 
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="stock" className="text-slate-700">Stock Quantity (Kg)</Label>
+                <Label htmlFor="stock" className="text-slate-700">Available Quantity</Label>
               <div className="relative">
                 <Package className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
                 <Input 

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import { Loader2, Save, Type, Hash, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -51,8 +52,7 @@ export default function CategoryFormModal({ isOpen, onClose, isEditing, item, on
   };
 
   const handleSave = async () => {
-    try {
-      setSaving(true);
+    const savePromise = (async () => {
       const payload = new FormData();
       payload.append("name_en", formData.name_en);
       payload.append("name_ta", formData.name_ta);
@@ -66,10 +66,28 @@ export default function CategoryFormModal({ isOpen, onClose, isEditing, item, on
       }
 
       const res = isEditing ? await apiUpdateCategory(item.id, payload) : await apiCreateCategory(payload);
-      if (res.is_success) { onClose(); onSuccess(); }
-      else alert(res.message || "Failed to save.");
-    } catch (e) { alert("An error occurred."); }
-    finally { setSaving(false); }
+      if (!res.is_success) {
+        throw new Error(res.message || "Failed to save.");
+      }
+      return res;
+    })();
+
+    toast.promise(savePromise, {
+      loading: isEditing ? "Saving category..." : "Creating category...",
+      success: isEditing ? "Category saved successfully!" : "Category created successfully!",
+      error: (err: any) => err.message || "An error occurred while saving."
+    });
+
+    try {
+      setSaving(true);
+      await savePromise;
+      onClose();
+      onSuccess();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
@@ -111,7 +129,7 @@ export default function CategoryFormModal({ isOpen, onClose, isEditing, item, on
               <Label className="text-slate-700">Name (English)</Label>
               <div className="relative">
                 <Type className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-slate-400" />
-                <Input placeholder="e.g. Fresh Fish" className="pl-9 rounded-xl border-slate-200" value={formData.name_en} onChange={(e) => setFormData({...formData, name_en: e.target.value})} />
+                <Input placeholder="e.g. Featured Items" className="pl-9 rounded-xl border-slate-200" value={formData.name_en} onChange={(e) => setFormData({...formData, name_en: e.target.value})} />
               </div>
             </div>
             <div className="space-y-2">

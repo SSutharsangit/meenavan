@@ -1,9 +1,10 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Plus } from "lucide-react";
+import { Plus, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { apiGetAllProducts, apiGetCategories, apiDeleteProduct, ProductFilters } from "../api-service";
+import PageHeader from "@/components/common/PageHeader";
 import ListProduct from "./ListProduct";
 import ProductFormModal from "./ProductFormModal";
 import FilterPanel from "./FilterPanel";
@@ -115,15 +116,13 @@ export default function ProductsManagement() {
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
-        <div>
-          <h1 className="text-3xl font-extrabold tracking-tight text-slate-900">Products</h1>
-          <p className="text-slate-500 mt-1 font-medium">Manage your seafood catalog, pricing, and inventory.</p>
-        </div>
-        <Button onClick={handleOpenCreate} className="bg-blue-600 hover:bg-blue-700 text-white rounded-xl shadow-sm">
-          <Plus className="mr-2 h-4 w-4" /> Add Product
-        </Button>
-      </div>
+      <PageHeader
+        title="Products"
+        subtitle="Manage your seafood catalog, pricing, and inventory."
+        buttonLabel="Add Product"
+        buttonOnClick={handleOpenCreate}
+        icon={Package}
+      />
 
       <ListProduct 
         products={products} 

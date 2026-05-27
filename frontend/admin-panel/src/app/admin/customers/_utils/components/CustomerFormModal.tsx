@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import toast from "react-hot-toast";
 import { Loader2, Save, User, Phone, Mail, MapPin } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -24,11 +25,30 @@ export default function CustomerFormModal({ isOpen, onClose, isEditing, item, on
   }, [isOpen, isEditing, item]);
 
   const handleSave = async () => {
+    const savePromise = (async () => {
+      const res = isEditing ? await apiUpdateCustomer(item.id, formData) : await apiCreateCustomer(formData);
+      if (!res.is_success) {
+        throw new Error(res.message || "Failed to save.");
+      }
+      return res;
+    })();
+
+    toast.promise(savePromise, {
+      loading: isEditing ? "Saving customer..." : "Creating customer...",
+      success: isEditing ? "Customer saved successfully!" : "Customer created successfully!",
+      error: (err: any) => err.message || "An error occurred while saving."
+    });
+
     try {
       setSaving(true);
-      const res = isEditing ? await apiUpdateCustomer(item.id, formData) : await apiCreateCustomer(formData);
-      if (res.is_success) { onClose(); onSuccess(); } else alert(res.message || "Failed to save.");
-    } catch (e) { alert("An error occurred."); } finally { setSaving(false); }
+      await savePromise;
+      onClose();
+      onSuccess();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setSaving(false);
+    }
   };
 
   return (
